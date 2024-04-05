@@ -54,17 +54,32 @@ int main(int argc, char **argv){
 
     initialize_platform("Intel(R) OpenCL Graphics");
 
-    double time;
-    int repeat = 1;
-
+    printf("Profiling read and write operations with 100 repetitions\n"); 
     profile_write_operation(100);
     profile_read_operation(100);
+    printf("\n");
+
+    printf("Profiling copy from 0 to 1; first warm-up, then 100 repetitions\n"); 
     profile_copy_operation(1, 0);
-    profile_copy_operation(1, 0);
-    profile_copy_operation(1, 0);
-    profile_copy_operation(10, 0);
     profile_copy_operation(100, 0);
-    profile_migrate_operation(1, 0);
+    profile_copy_operation(1, 0);
+    printf("\n");
+
+    printf("Profiling copy from 0 to 1; first update buffers, then 100 repetitions\n"); 
+    profile_write_operation(1);
+    profile_copy_operation(100, 0);
+    printf("\n");
+
+    printf("Profiling ping-pong copy between 0 and 1, 3 times\n");
+    profile_copy_operation(1, 1);
+    profile_copy_operation(1, 0);
+    profile_copy_operation(1, 1);
+    profile_copy_operation(1, 0);
+    profile_copy_operation(1, 1);
+    profile_copy_operation(1, 0);
+    printf("\n");
+
+    printf("Profiling migrate operation to 0, first warm-up, then increase repetitions\n");
     profile_migrate_operation(1, 0);
     profile_migrate_operation(1, 0);
     profile_migrate_operation(10, 0);
@@ -383,7 +398,7 @@ void profile_write_operation(int repeat) {
 
         time = get_time() - time;
         printf(
-                "Hto%d: %3d times %9.3e GB in %9.3e seconds at %9.3e GB/s\n",
+                "  Hto%d: %3d times %9.3e GB in %9.3e seconds at %8.2f GB/s\n",
                 i,
                 repeat,
                 (double)buffer_size * sizeof(double) / 1e9,
@@ -404,7 +419,7 @@ void profile_read_operation(int repeat) {
 
         time = get_time() - time;
         printf(
-                "%dtoH: %3d times %9.3e GB in %9.3e seconds at %9.3e GB/s\n",
+                "  %dtoH: %3d times %9.3e GB in %9.3e seconds at %8.2f GB/s\n",
                 i,
                 repeat,
                 (double)buffer_size * sizeof(double) / 1e9,
@@ -428,7 +443,7 @@ void profile_copy_operation(int repeat, cl_uint src) {
 
             time = get_time() - time;
             printf(
-                    "%dto%d: %3d times %9.3e GB in %9.3e seconds at %9.3e GB/s\n",
+                    "  %dto%d: %3d times %9.3e GB in %9.3e seconds at %8.2f GB/s\n",
                     src,
                     i,
                     repeat,
@@ -460,7 +475,7 @@ void profile_migrate_operation(int repeat, cl_uint dst) {
 
             time = get_time() - time;
             printf(
-                    "%dmg%d: %3d times %9.3e GB in %9.3e seconds at %9.3e GB/s\n",
+                    "  %dmg%d: %3d times %9.3e GB in %9.3e seconds at %8.2f GB/s\n",
                     i,
                     dst,
                     repeat,
